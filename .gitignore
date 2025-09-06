@@ -1,0 +1,16 @@
+build/
+install/
+log/
+*.o
+*.so
+*.a
+*.d
+*.out
+__pycache__/
+*.pyc
+*.pyo
+.vscode/
+.idea/
+.ccls-cache/
+.DS_Store
+Thumbs.db
