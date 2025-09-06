@@ -7,16 +7,14 @@
 
 using namespace std::chrono_literals;
 
-class MapPublisher : public rclcpp::Node
-{
+class MapPublisher : public rclcpp::Node {
 public:
-    MapPublisher() : Node("goal_publisher")
-    {
-        publisher_ = this->create_publisher<nav_msgs::msg::OccupancyGrid>("map", 10);
-
+    MapPublisher() : Node("map_publisher") {
+        publisher_ = this->create_publisher<nav_msgs::msg::OccupancyGrid>("map", rclcpp::QoS(1).transient_local());
 
         auto message = nav_msgs::msg::OccupancyGrid();
-
+        message.header.frame_id = "map";
+        message.info.resolution = 1.0;
         message.info.width = 100;
         message.info.height = 100;
 
@@ -38,8 +36,7 @@ private:
     rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr publisher_;
 };
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     rclcpp::init(argc, argv);
     rclcpp::spin(std::make_shared<MapPublisher>());
     rclcpp::shutdown();
