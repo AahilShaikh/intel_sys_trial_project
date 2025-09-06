@@ -11,15 +11,15 @@
 
 using namespace std::chrono_literals;
 
-class GoalPublisher : public rclcpp::Node {
+class StartPublisher : public rclcpp::Node {
 public:
-    GoalPublisher() : Node("goal_publisher") {
-        publisher_ = this->create_publisher<geometry_msgs::msg::Point>("goal", 10);
+    StartPublisher() : Node("start_publisher") {
+        publisher_ = this->create_publisher<geometry_msgs::msg::Point>("start", 10);
 
         subscription_ = this->create_subscription<nav_msgs::msg::OccupancyGrid>(
             "map",
             rclcpp::QoS(1).transient_local(),
-            std::bind(&GoalPublisher::topicCallback, this, std::placeholders::_1));
+            std::bind(&StartPublisher::topicCallback, this, std::placeholders::_1));
     }
 
 private:
@@ -36,13 +36,13 @@ private:
         std::uniform_int_distribution<> distrib(0, free_spaces.size() - 1);
 
         int random_index = distrib(gen);
-        int goal_cell = free_spaces[random_index]; // Index of the goal cell in msg.data
+        int start_cell = free_spaces[random_index]; // Index of the start cell in msg.data
 
         auto message = geometry_msgs::msg::Point();
-        message.x = goal_cell % msg->info.width;
-        message.y = goal_cell / msg->info.height;
+        message.x = start_cell % msg->info.width;
+        message.y = start_cell / msg->info.height;
 
-        RCLCPP_INFO(this->get_logger(), "Publishing goal point: [x: %.2f, y: %.2f]", message.x, message.y);
+        RCLCPP_INFO(this->get_logger(), "Publishing starting point: [x: %.2f, y: %.2f]", message.x, message.y);
         this->publisher_->publish(message);
     }
 
@@ -52,7 +52,7 @@ private:
 
 int main(int argc, char *argv[]) {
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<GoalPublisher>());
+    rclcpp::spin(std::make_shared<StartPublisher>());
     rclcpp::shutdown();
     return 0;
 }

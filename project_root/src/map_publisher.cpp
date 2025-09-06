@@ -37,7 +37,7 @@ public:
             for(size_t c = 0; c < message.info.height; c++) {
                 double noise_value = fractalBrownianMotion(c, r, 8);
                 double scaled_value = (noise_value + 1.0) * 50.0; // Map to [0, 100]
-                if(scaled_value > 45) {
+                if(scaled_value > 55) {
                     message.data.push_back(100);
                 } else {
                     message.data.push_back(0);

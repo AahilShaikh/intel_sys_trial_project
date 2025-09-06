@@ -18,5 +18,13 @@ def generate_launch_description():
             remappings=[
                 ('goal', 'generated_goal')
             ]
+        ),
+        Node(
+            package='project_root',
+            executable='start_publisher',
+            name='start_publisher',
+            remappings=[
+                ('start', 'generated_start')
+            ]
         )
     ])
