@@ -26,5 +26,10 @@ def generate_launch_description():
             remappings=[
                 ('start', 'generated_start')
             ]
+        ),
+        Node(
+            package='project_root',
+            executable='path_publisher',
+            name='path_publisher',
         )
     ])

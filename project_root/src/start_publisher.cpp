@@ -14,9 +14,9 @@ using namespace std::chrono_literals;
 class StartPublisher : public rclcpp::Node {
 public:
     StartPublisher() : Node("start_publisher") {
-        publisher_ = this->create_publisher<geometry_msgs::msg::Point>("start", 10);
+        publisher_ = this->create_publisher<geometry_msgs::msg::Point>("start", rclcpp::QoS(1).transient_local());
 
-        subscription_ = this->create_subscription<nav_msgs::msg::OccupancyGrid>(
+        mapSubscription_ = this->create_subscription<nav_msgs::msg::OccupancyGrid>(
             "map",
             rclcpp::QoS(1).transient_local(),
             std::bind(&StartPublisher::topicCallback, this, std::placeholders::_1));
@@ -46,7 +46,7 @@ private:
         this->publisher_->publish(message);
     }
 
-    rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr subscription_;
+    rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr mapSubscription_;
     rclcpp::Publisher<geometry_msgs::msg::Point>::SharedPtr publisher_;
 };
 
