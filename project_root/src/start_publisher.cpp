@@ -40,7 +40,7 @@ private:
 
         auto message = geometry_msgs::msg::Point();
         message.x = start_cell % msg->info.width;
-        message.y = start_cell / msg->info.height;
+        message.y = start_cell / msg->info.width;
 
         RCLCPP_INFO(this->get_logger(), "Publishing starting point: [x: %.2f, y: %.2f]", message.x, message.y);
         this->publisher_->publish(message);

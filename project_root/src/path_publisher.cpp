@@ -14,7 +14,7 @@ using namespace std::chrono_literals;
 class PathPublisher : public rclcpp::Node {
   public:
     PathPublisher() : Node("path_publisher") {
-        publisher_ = this->create_publisher<nav_msgs::msg::Path>("path", 10);
+        publisher_ = this->create_publisher<nav_msgs::msg::Path>("path", rclcpp::QoS(1).transient_local());
 
         mapSubscription_ = this->create_subscription<nav_msgs::msg::OccupancyGrid>(
             "map", rclcpp::QoS(1).transient_local(), std::bind(&PathPublisher::updateMap, this, std::placeholders::_1));
@@ -137,7 +137,7 @@ class PathPublisher : public rclcpp::Node {
                 int neighbor_idx = neighbor_y * width + neighbor_x;
 
                 // Skip neighbor if out of bounds, already processed, or if it contains an obstacle
-                if (neighbor_x < 0 || neighbor_x > width || neighbor_y < 0 || neighbor_y > height) {
+                if (neighbor_x < 0 || neighbor_x >= width || neighbor_y < 0 || neighbor_y >= height) {
                     continue;
                 }
                 if (map_->data[neighbor_idx] == 100 || closed_set.count(neighbor_idx) > 0) {
@@ -158,26 +158,26 @@ class PathPublisher : public rclcpp::Node {
                     open_set.push(&neighbor_node);
                 }
             }
+        }
 
-            //Create path message and publish it
-            if (goal_node_ptr) {
-                std::vector<PathNode *> path_nodes = reconstructPath(goal_node_ptr);
-                auto path_msg = nav_msgs::msg::Path();
-                path_msg.header.frame_id = "map";
-                path_msg.header.stamp = this->get_clock()->now();
+        // Create path message and publish it
+        if (goal_node_ptr) {
+            std::vector<PathNode *> path_nodes = reconstructPath(goal_node_ptr);
+            auto path_msg = nav_msgs::msg::Path();
+            path_msg.header.frame_id = "map";
+            path_msg.header.stamp = this->get_clock()->now();
 
-                for (const auto &node : path_nodes) {
-                    geometry_msgs::msg::PoseStamped pose;
-                    pose.header = path_msg.header;
-                    pose.pose.position.x = node->x;
-                    pose.pose.position.y = node->y;
-                    path_msg.poses.push_back(pose);
-                }
-                RCLCPP_INFO(this->get_logger(), "Publishing path");
-                publisher_->publish(path_msg);
-            } else {
-                RCLCPP_INFO(this->get_logger(), "Path not found");
+            for (const auto &node : path_nodes) {
+                geometry_msgs::msg::PoseStamped pose;
+                pose.header = path_msg.header;
+                pose.pose.position.x = node->x;
+                pose.pose.position.y = node->y;
+                path_msg.poses.push_back(pose);
             }
+            RCLCPP_INFO(this->get_logger(), "Publishing path");
+            publisher_->publish(path_msg);
+        } else {
+            RCLCPP_INFO(this->get_logger(), "Path not found");
         }
     }
 };
