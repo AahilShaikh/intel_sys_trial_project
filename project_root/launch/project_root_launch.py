@@ -18,13 +18,15 @@ def generate_launch_description():
         ),
         Node(
             package='project_root',
-            executable='goal_publisher',
+            executable='point_publisher',
             name='goal_publisher',
+            parameters=[{'point_topic': 'goal'}]
         ),
         Node(
             package='project_root',
-            executable='start_publisher',
+            executable='point_publisher',
             name='start_publisher',
+            parameters=[{'point_topic': 'start'}]
         ),
         Node(
             package='project_root',

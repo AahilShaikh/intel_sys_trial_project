@@ -94,6 +94,9 @@ class PathPublisher : public rclcpp::Node {
         return path;
     }
 
+    /**
+     * Implements the A* Star algorithm for path finding as seen on https://en.wikipedia.org/wiki/A*_search_algorithm
+     */
     std::vector<PathNode> aStar() {
         if (map_ == nullptr || start_ == nullptr || goal_ == nullptr) {
             return std::vector<PathNode>();
@@ -101,8 +104,6 @@ class PathPublisher : public rclcpp::Node {
 
         const int width = map_->info.width;
         const int height = map_->info.height;
-
-        // A* Star algorithm: https://en.wikipedia.org/wiki/A*_search_algorithm
 
         std::unordered_map<int, PathNode> all_nodes;
         std::priority_queue<PathNode *, std::vector<PathNode *>, NodeComparator> open_set;
