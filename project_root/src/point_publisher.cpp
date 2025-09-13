@@ -11,15 +11,19 @@
 
 using namespace std::chrono_literals;
 
-class StartPublisher : public rclcpp::Node {
+class PointPublisher : public rclcpp::Node {
 public:
-    StartPublisher() : Node("start_publisher") {
-        publisher_ = this->create_publisher<geometry_msgs::msg::Point>("start", 10);
+    PointPublisher() : Node("point_publisher") {
+        // Get topic from ROS parameter
+        this->declare_parameter<std::string>("point_topic", "default_topic");
+        std::string topic_name = this->get_parameter("point_topic").as_string();
 
-        subscription_ = this->create_subscription<nav_msgs::msg::OccupancyGrid>(
+        publisher_ = this->create_publisher<geometry_msgs::msg::Point>(topic_name, rclcpp::QoS(1).transient_local());
+
+        mapSubscription_ = this->create_subscription<nav_msgs::msg::OccupancyGrid>(
             "map",
             rclcpp::QoS(1).transient_local(),
-            std::bind(&StartPublisher::topicCallback, this, std::placeholders::_1));
+            std::bind(&PointPublisher::topicCallback, this, std::placeholders::_1));
     }
 
 private:
@@ -36,23 +40,24 @@ private:
         std::uniform_int_distribution<> distrib(0, free_spaces.size() - 1);
 
         int random_index = distrib(gen);
-        int start_cell = free_spaces[random_index]; // Index of the start cell in msg.data
+        int cell = free_spaces[random_index]; // Index of the cell in msg.data
 
         auto message = geometry_msgs::msg::Point();
-        message.x = start_cell % msg->info.width;
-        message.y = start_cell / msg->info.height;
+        message.x = cell % msg->info.width;
+        message.y = cell / msg->info.width;
 
-        RCLCPP_INFO(this->get_logger(), "Publishing starting point: [x: %.2f, y: %.2f]", message.x, message.y);
+        RCLCPP_INFO(this->get_logger(), "Publishing %s point: [x: %.2f, y: %.2f]",
+                    this->get_parameter("point_topic").as_string().c_str(), message.x, message.y);
         this->publisher_->publish(message);
     }
 
-    rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr subscription_;
+    rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr mapSubscription_;
     rclcpp::Publisher<geometry_msgs::msg::Point>::SharedPtr publisher_;
 };
 
 int main(int argc, char *argv[]) {
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<StartPublisher>());
+    rclcpp::spin(std::make_shared<PointPublisher>());
     rclcpp::shutdown();
     return 0;
 }

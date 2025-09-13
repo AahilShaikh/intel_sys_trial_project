@@ -7,24 +7,30 @@ def generate_launch_description():
 
     return LaunchDescription([
         Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            arguments = ['0', '0', '0', '0', '0', '0', 'world', 'map']
+        ),
+        Node(
             package='project_root',
             executable='map_publisher',
             name='map_publisher'
         ),
         Node(
             package='project_root',
-            executable='goal_publisher',
+            executable='point_publisher',
             name='goal_publisher',
-            remappings=[
-                ('goal', 'generated_goal')
-            ]
+            parameters=[{'point_topic': 'goal'}]
         ),
         Node(
             package='project_root',
-            executable='start_publisher',
+            executable='point_publisher',
             name='start_publisher',
-            remappings=[
-                ('start', 'generated_start')
-            ]
+            parameters=[{'point_topic': 'start'}]
+        ),
+        Node(
+            package='project_root',
+            executable='path_publisher',
+            name='path_publisher',
         )
     ])

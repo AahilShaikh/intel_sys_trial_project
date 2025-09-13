@@ -13,20 +13,19 @@ find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 
 
-add_executable(goal_publisher src/goal_publisher.cpp)
-ament_target_dependencies(goal_publisher rclcpp std_msgs geometry_msgs nav_msgs)
-
-add_executable(start_publisher src/start_publisher.cpp)
-ament_target_dependencies(start_publisher rclcpp nav_msgs)
-
+add_executable(point_publisher src/point_publisher.cpp)
+ament_target_dependencies(point_publisher rclcpp std_msgs geometry_msgs nav_msgs)
 
 add_executable(map_publisher src/map_publisher.cpp)
 ament_target_dependencies(map_publisher rclcpp nav_msgs)
 
+add_executable(path_publisher src/path_publisher.cpp)
+ament_target_dependencies(path_publisher rclcpp geometry_msgs nav_msgs)
+
 install(TARGETS
-  goal_publisher
-  start_publisher
+  point_publisher
   map_publisher
+  path_publisher
   DESTINATION lib/${PROJECT_NAME})
 
 install(
